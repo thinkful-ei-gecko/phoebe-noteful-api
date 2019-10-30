@@ -11,7 +11,7 @@ const serializeNote = note => ({
   id: note.id,
   name: xss(note.name), 
   modified: note.modified, 
-  folderId: note.folderId, 
+  folderid: note.folderid, 
   content: xss(note.content)
 })
 
@@ -26,20 +26,20 @@ notesRouter
       .catch(next)
   })
   .post(responseJson, (req, res, next) => {
-    const { id, name, modified, folderId, content } = req.body;
+    const { id, name, modified, folderid, content } = req.body;
     const newNote = { name, content }
     
-    for (const [key, value] in Object.keys(newNote)) {
-      if (value == null) {
-        return res => res.json({
-          error: { message: `Missing ${key} in request body`}
-        })
-      }
-    }
+    // for (const [key, value] in Object.keys(newNote)) {
+    //   if (value == null) {
+    //     return res => res.json({
+    //       error: { message: `Missing ${key} in request body`}
+    //     })
+    //   }
+    // }
 
     newNote.id = id;
     newNote.modified = modified;
-    newNote.folderId = folderId;
+    newNote.folder_id = folderid;
     
     NotesService.insertNote(
       req.app.get('db'),
@@ -47,7 +47,7 @@ notesRouter
     )
       .then(numOfRowsAffected => {
         //why is no return needed here? 
-        return res
+        res
           .status(201)
           .location(path.posix.join(req.originalUrl + `/${newNote.id}`))
           .json(serializeNote(newNote))
@@ -71,7 +71,7 @@ notesRouter
           })
         }
 
-        return res.note = note;
+        res.note = note;
         next();
       })
       .catch(next)
